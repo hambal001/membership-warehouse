@@ -1,0 +1,27 @@
+name: membership-warehouse
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: Run tests
+        run: python -m pytest -q
+      - name: Build warehouse on generated data
+        run: python -m warehouse.run --generate
+      - name: Print mart report
+        run: python -m warehouse.report
+      - name: Upload warehouse database
+        uses: actions/upload-artifact@v4
+        with:
+          name: warehouse-db
+          path: warehouse.db
